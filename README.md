@@ -11,25 +11,30 @@ Before running the code, make sure you have setup the environment and installed 
 ```python
 pip install -r requirements.txt
 ```
+
 1. To determine whether a question is suitable for conversion into a visual multiple-choice format using a multimodal large language model (MLLM), you can run the following script:
 ```python
    python discrimination.py
 ```
 Prerequisites: (1) exemplar.csv — exemplar questions dataset (2) test.csv — test questions dataset (3) configured MLLM API access (e.g., API key).
+
 2. If you want to use our question generator, you need to run:
 ```python
   question_generation.py
 ```
 Note that you also need to provide everything required to run this code, including the API, test file, and output path.
+
 3. After generating questions and reasoning, you need to run the OQRM module to select the best questions.
 ```python
    python oqrm.py
 ```
 The hyperparameter is set to α=0.6, and the specific script is `screen_altenative.py`.
+
 4. If you want to generate textual options for the questions, you need to run `option_generation.py`, and similarly, you need to provide the API, test file, and output path.
 ```python
    option_generation.py
 ```
+
 5. If you want to generate suitable visual images for the textual options, you need to run `visual_option_generation.py`.
 ```python
    visual_option_generation.py
