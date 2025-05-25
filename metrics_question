@@ -1,0 +1,66 @@
+def evaluate(self, predictions, references):
+    assert len(predictions) == len(references), "The number of predictions and references must be equal."
+    print(f"{'Index':<6} {'BLEU':<10} {'ROUGE-L':<10} {'METEOR':<10} {'Semantic Similarity':<20}")
+
+    results = []
+
+    for i, (pred, ref) in enumerate(zip(predictions, references)):
+        pred = pred.strip() if isinstance(pred, str) else ""
+        ref = ref.strip() if isinstance(ref, str) else ""
+
+        pred_tokens = word_tokenize(pred)
+        ref_tokens = word_tokenize(ref)
+
+        # BLEU-4
+        bleu = 0.0
+        if pred_tokens and ref_tokens:
+            bleu = sentence_bleu(
+                [ref_tokens],
+                pred_tokens,
+                weights=(0.25, 0.25, 0.25, 0.25),
+                smoothing_function=self.smooth_fn
+            ) * 100
+
+        # ROUGE-L
+        rouge_l = 0.0
+        if pred and ref:
+            rouge_l = self.scorer.score(ref, pred)['rougeL'].fmeasure * 100
+
+        # METEOR
+        meteor = meteor_score([ref_tokens], pred_tokens) * 100
+
+        # Semantic similarity
+        semantic_similarity = self.calculate_semantic_similarity(ref, pred)
+
+        self.bleu_scores.append(bleu)
+        self.rouge_l_scores.append(rouge_l)
+        self.meteor_scores.append(meteor)
+        self.semantic_similarity_scores.append(semantic_similarity)
+
+        print(f"{i:<6} {bleu:<10.2f} {rouge_l:<10.2f} {meteor:<10.2f} {semantic_similarity:<20.2f}")
+
+        results.append({
+            'index': i,
+            'prediction': pred,
+            'reference': ref,
+            'bleu': bleu,
+            'rouge_l': rouge_l,
+            'meteor': meteor,
+            'semantic_similarity': semantic_similarity
+        })
+
+    print("\n Average scores:")
+    print(f"BLEU average: {np.mean(self.bleu_scores):.2f}")
+    print(f"ROUGE-L average: {np.mean(self.rouge_l_scores):.2f}")
+    print(f"METEOR average: {np.mean(self.meteor_scores):.2f}")
+    print(f"Semantic similarity average: {np.mean(self.semantic_similarity_scores):.2f}")
+
+    return {
+        'individual_scores': results,
+        'average_scores': {
+            'bleu': np.mean(self.bleu_scores),
+            'rouge_l': np.mean(self.rouge_l_scores),
+            'meteor': np.mean(self.meteor_scores),
+            'semantic_similarity': np.mean(self.semantic_similarity_scores)
+        }
+    }
