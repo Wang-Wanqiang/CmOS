@@ -17,7 +17,7 @@ from model.FAREEncoder import FAREEncoder
 
 class ImageGeneration:
     def __init__(self, image_dataset_path: str, api_key: str,
-                 model_name: str = "qwen-vl-max-latest",
+                 model_name: str = "qwen2.5-vl-instruct",
                  save_dir: str = "./enhanced_images"):
         self.image_dataset = pd.read_csv(image_dataset_path)
         self.api_key = api_key
