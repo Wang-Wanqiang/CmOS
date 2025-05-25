@@ -1,6 +1,6 @@
 # Beyond the Textual: Generating Coherent Visual Options for MCQs
 Cross-modal Options Synthesis (CmOS) is a multimodal educational question generation with visual options framework, integrating Multimodal Chain-of-Thought (MCoT) reasoning with Retrieval-Augmented Generation (RAG) to generate MCQs with visual options. Specifically, the framework employs an Multimodal Large Language Model (MLLM) to encode multimodal content and embeds it into a four-stage MCoT architecture that separates content discrimination, question and reason generation, alternative pairs screening, and visual options generation. To improve the quality of visual options, we leverage RAG to retrieve similar images from an external educational image database as templates for generation, and then the MLLM and the T2I model are required to optimize based on the templates.
-![Alt text](fig4.pdf)
+![Alt text](method.png)
 
 # Requirements
 python 3.11 and above
