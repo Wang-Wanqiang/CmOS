@@ -1,0 +1,62 @@
+import torch
+from open_clip import create_model_and_transforms, tokenize
+from PIL import Image
+
+
+class FAREEncoder:
+    def __init__(self):
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # Fixed model and weights
+        self.model, _, self.image_processor = create_model_and_transforms(
+            'ViT-L-14', pretrained='openai', device=self.device
+        )
+        checkpoint = torch.load('the path of fare_eps_2.pt',
+                                map_location=self.device)
+        self.model.visual.load_state_dict(checkpoint)
+        self.model.eval()
+
+        # Define the image embedding dimension
+        self.image_embedding_dim = 768  # Assume output dimension is 768
+
+    def encode_image(self, image_or_path) -> torch.Tensor:
+        """
+        Input: a PIL.Image.Image, image file path (str), or None
+        Output: image embedding vector (torch.Tensor); returns zero vector if no image
+        """
+        # Try to open image if input is a path
+        if isinstance(image_or_path, str):
+            try:
+                image = Image.open(image_or_path).convert('RGB')
+            except Exception as e:
+                print(f"[Warning] Failed to load image from path {image_or_path}, error: {e}")
+                image = None
+        elif isinstance(image_or_path, Image.Image):
+            image = image_or_path
+        else:
+            image = None
+
+        # If no valid image, return zero vector
+        if image is None:
+            return torch.zeros((self.image_embedding_dim,), dtype=torch.float32)
+
+        # Normal image encoding process
+        with torch.no_grad():
+            processed = self.image_processor(image).unsqueeze(0).to(self.device)
+
+            if hasattr(self.model, "encode_image"):
+                embedding = self.model.encode_image(processed)
+            else:
+                embedding = self.model.visual(processed)
+
+            return embedding.squeeze(0).detach().cpu()
+
+    def encode_text(self, text: str) -> torch.Tensor:
+        """
+        Input: text string
+        Output: text embedding vector (Tensor)
+        """
+        # Use open_clip tokenize function to process text
+        text_tensor = tokenize([text]).to(self.device)
+        with torch.no_grad():
+            embedding = self.model.encode_text(text_tensor)
+        return embedding.squeeze(0)  # Returns vector with shape [embedding_dim]
